@@ -5,31 +5,35 @@ import FormContext from './FormContext'
 import { Action, FormContext as FormContextType, FormError, FormValues } from '../types'
 
 const useFormContext = <T extends FormValues>(): FormContextType<T> => {
-  const { dispatchFieldError, dispatchFormError, dispatchValue, values, ...ctx } = React.useContext(FormContext)
+  const {
+    dispatchFieldError, dispatchFormError, dispatchValue, values, ...ctx
+  } = React.useContext(FormContext)
 
   const addFieldError = (id: string, key: string, value: FormError) => dispatchFieldError({
-    id, key, value, type: Action.ADD
+    type: Action.ADD, id, key, value
   })
 
   const addFormError = (key: string, value: FormError) => dispatchFormError({
-    key, value, type: Action.ADD
+    type: Action.ADD, key, value
   })
 
   const clearFieldErrors = (id: string) => dispatchFieldError({
-    id, type: Action.CLEAR
+    type: Action.CLEAR, id
   })
 
   const clearFormErrors = () => dispatchFormError({ type: Action.CLEAR })
 
   const removeFieldError = (id: string, key: string) => dispatchFieldError({
-    id, key, type: Action.REMOVE
+    type: Action.REMOVE, id, key
   })
 
   const removeFormError = (key: string) => dispatchFormError({
-    key, type: Action.REMOVE
+    type: Action.REMOVE, key
   })
 
-  const setValue = (id: string, value: any) => dispatchValue({ type: Action.ADD, id, value })
+  const setValue = (id: string, value: any) => dispatchValue({
+    type: Action.ADD, id, value
+  })
 
   return {
     ...ctx,

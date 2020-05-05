@@ -24,7 +24,7 @@ export const Form = <T extends FormValues>({
 
     dispatchFieldError({ type: Action.RESET })
     dispatchFormError({ type: Action.RESET })
-    dispatchValue({ initialValues, type: Action.RESET })
+    dispatchValue({ type: Action.RESET, initialValues })
   }, [])
 
   // OPTIMIZE: possibly more efficient to use isSubmitting to trigger useEffect
@@ -38,9 +38,9 @@ export const Form = <T extends FormValues>({
 
     const setFormError = (key: string, value: FormError | null) => {
       if (value) {
-        dispatchFormError({ key, value, type: Action.ADD })
+        dispatchFormError({ type: Action.ADD, key, value })
       } else {
-        dispatchFormError({ key, type: Action.REMOVE })
+        dispatchFormError({ type: Action.REMOVE, key })
       }
     }
 
