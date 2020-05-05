@@ -17,7 +17,7 @@ export interface FormValues {
   [key: string]: any
 }
 
-export enum Action {
+export const enum Action {
   ADD = 'form.action.add',
   CLEAR = 'form.action.clear',
   REMOVE = 'form.action.remove',
