@@ -1,0 +1,46 @@
+{
+  "name": "@area2k/use-form",
+  "version": "0.0.1",
+  "description": "A react hook to create magical forms",
+  "license": "MIT",
+  "author": "Andrew Rempe",
+  "repository": "area2k/useForm",
+  "homepage": "https://github.com/area2k/useForm#readme",
+  "bugs": "https://github.com/area2k/useForm/issues",
+  "main": "build/index.js",
+  "module": "build/index.es.js",
+  "jsnext:main": "build/index.es.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "build",
+    "types"
+  ],
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^4.1.1",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "rollup": "^2.6.1",
+    "rollup-plugin-peer-deps-external": "^2.2.2",
+    "tslib": "^1.11.1",
+    "typescript": "^3.8.3"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.3",
+    "react-dom": ">=16.8.3"
+  },
+  "workspaces": {
+    "nohoist": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
