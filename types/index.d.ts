@@ -96,4 +96,8 @@ export interface FormProps<T extends FormValues>
   onSubmit: (values: T, helpers: SubmitHelpers) => Promise<any>
 }
 
+export const useErrors: (fieldId?: string) => FormErrorMap
+export const useField: <T extends any>(id: string, callback?: FieldCallback<T>) => FieldContext<T>
+export const useFormContext: <T extends FormValues>() => FormContext<T>
+
 export default function<T extends FormValues> (props: FormProps<T>): JSX.Element
