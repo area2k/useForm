@@ -9,13 +9,9 @@ export interface FormErrorMap {
   [key: string]: FormError
 }
 
-export interface FieldErrorMap {
-  [fieldId: string]: FormErrorMap
-}
+export type FormValues = Record<string, any>
 
-export interface FormValues {
-  [key: string]: any
-}
+export type FieldErrorMap<T extends FormValues> = Record<keyof T, FormErrorMap>
 
 export const enum Action {
   ADD = 'form.action.add',
@@ -24,13 +20,13 @@ export const enum Action {
   RESET = 'form.action.reset'
 }
 
-export type AddFieldErrorAction = { type: Action.ADD, id: string, key: string, value: FormError }
-export type RemoveFieldErrorAction = { type: Action.REMOVE, id: string, key: string }
+export type AddFieldErrorAction<K> = { type: Action.ADD, id: K, key: string, value: FormError }
+export type RemoveFieldErrorAction<K> = { type: Action.REMOVE, id: K, key: string }
 export type ClearFieldErrorAction = { type: Action.CLEAR, id: string }
 export type ResetFieldErrorsAction = { type: Action.RESET }
-export type FieldErrorsActions = AddFieldErrorAction | RemoveFieldErrorAction | ClearFieldErrorAction | ResetFieldErrorsAction
+export type FieldErrorsActions<T> = AddFieldErrorAction<keyof T> | RemoveFieldErrorAction<keyof T> | ClearFieldErrorAction | ResetFieldErrorsAction
 
-export type DispatchFieldError = React.Dispatch<FieldErrorsActions>
+export type DispatchFieldError<K> = React.Dispatch<FieldErrorsActions<K>>
 
 export type AddFormErrorAction = { type: Action.ADD, key: string, value: FormError }
 export type RemoveFormErrorAction = { type: Action.REMOVE, key: string }
@@ -45,20 +41,20 @@ export type ValuesActions<T> = AddValueAction | ResetValuesAction<T>
 
 export type DispatchValues<T> = React.Dispatch<ValuesActions<T>>
 
-export interface ContextShape {
-  fieldErrors: FieldErrorMap
+export interface ContextShape<T extends FormValues = FormValues> {
+  fieldErrors: FieldErrorMap<T>
   formErrors: FormErrorMap
   isDirty: boolean
   isSubmitting: boolean
-  values: FormValues
+  values: T
   clearForm: () => void
-  dispatchFieldError: DispatchFieldError
+  dispatchFieldError: DispatchFieldError<T>
   dispatchFormError: DispatchFormError
-  dispatchValue: DispatchValues<FormValues>
+  dispatchValue: DispatchValues<T>
 }
 
 export interface FormContext<T extends FormValues> {
-  fieldErrors: FieldErrorMap
+  fieldErrors: FieldErrorMap<T>
   formErrors: FormErrorMap
   isDirty: boolean
   isSubmitting: boolean
@@ -93,7 +89,9 @@ export interface FormProps<T extends FormValues>
   disabled?: boolean
   initialValues?: T,
   keepFormErrorsOnSubmit?: boolean
-  onSubmit: (values: T, helpers: SubmitHelpers) => Promise<any>
+  render?: (props: React.PropsWithChildren<{ onSubmit: () => void }>) => React.ReactElement<any, any> | null
+  onSubmit: (values: T, helpers: SubmitHelpers) => Promise<void>
+  onSubmitWithErrors: (values: T, errors: FieldErrorMap<T>, helpers: SubmitHelpers) => Promise<void>
 }
 
 export const useErrors: (fieldId?: string) => FormErrorMap

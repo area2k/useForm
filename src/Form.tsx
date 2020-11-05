@@ -6,16 +6,22 @@ import fieldErrorsReducer from './reducers/fieldErrorsReducer'
 import formErrorsReducer from './reducers/formErrorsReducer'
 import valuesReducer from './reducers/valuesReducer'
 
-import { Action, FormError, FormValues, FormProps, ValuesActions } from '../types'
+import { Action, FieldErrorsActions, FieldErrorMap, FormError, FormValues, FormProps, ValuesActions } from '../types'
+
+const hasFieldErrors = <T extends FormValues>(fieldErrors: FieldErrorMap<T>): boolean => (
+  Object.keys(fieldErrors).reduce((acc, elem) => (
+    acc || Object.keys(fieldErrors[elem]).length > 0
+  ), false)
+)
 
 export const Form = <T extends FormValues>({
   children, disabled = false, initialValues = {} as T,
-  keepFormErrorsOnSubmit = false, onSubmit, ...rest
+  keepFormErrorsOnSubmit = false, render, onSubmit, onSubmitWithErrors, ...rest
 }: FormProps<T>) => {
   const isDirty = React.useRef(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  const [fieldErrors, dispatchFieldError] = React.useReducer(fieldErrorsReducer, {})
+  const [fieldErrors, dispatchFieldError] = React.useReducer<React.Reducer<FieldErrorMap<T>, FieldErrorsActions<T>>>(fieldErrorsReducer, {} as FieldErrorMap<T>)
   const [formErrors, dispatchFormError] = React.useReducer(formErrorsReducer, {})
   const [values, dispatchValue] = React.useReducer<React.Reducer<T, ValuesActions<T>>>(valuesReducer, initialValues)
 
@@ -27,12 +33,19 @@ export const Form = <T extends FormValues>({
     dispatchValue({ type: Action.RESET, initialValues })
   }, [])
 
-  // OPTIMIZE: possibly more efficient to use isSubmitting to trigger useEffect
-  const handleSubmit = React.useCallback((ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault()
-    ev.stopPropagation()
-
+  const triggerSubmit = React.useCallback((ev?: React.FormEvent<HTMLFormElement>) => {
     if (disabled) return
+
+    if (ev) {
+      ev.preventDefault()
+      ev.stopPropagation()
+    }
+
+    setIsSubmitting(true)
+  }, [disabled])
+
+  React.useEffect(() => {
+    if (!isSubmitting) return
 
     if (!keepFormErrorsOnSubmit) dispatchFormError({ type: Action.CLEAR })
 
@@ -44,11 +57,12 @@ export const Form = <T extends FormValues>({
       }
     }
 
-    setIsSubmitting(true)
-    onSubmit(values, { clearForm, setFormError })
-      .then(() => setIsSubmitting(false))
-      .catch(() => setIsSubmitting(false))
-  }, [disabled, values, onSubmit])
+    const submitResult = hasFieldErrors(fieldErrors)
+      ? onSubmitWithErrors(values, fieldErrors, { clearForm, setFormError })
+      : onSubmit(values, { clearForm, setFormError })
+
+    submitResult.finally(() => setIsSubmitting(false))
+  }, [isSubmitting])
 
   const value = {
     formErrors,
@@ -64,9 +78,12 @@ export const Form = <T extends FormValues>({
 
   return (
     <FormContext.Provider value={value}>
-      <form {...rest} onSubmit={handleSubmit}>
-        {children}
-      </form>
+      {render
+        ? render({ onSubmit: triggerSubmit })
+        : <form {...rest} onSubmit={triggerSubmit}>
+            {children}
+          </form>
+      }
     </FormContext.Provider>
   )
 }

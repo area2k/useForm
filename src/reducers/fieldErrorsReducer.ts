@@ -1,6 +1,6 @@
-import { Action, FieldErrorMap, FieldErrorsActions } from '../../types'
+import { Action, FieldErrorMap, FieldErrorsActions, FormValues } from '../../types'
 
-const fieldErrorsReducer = (state: FieldErrorMap, action: FieldErrorsActions): FieldErrorMap => {
+const fieldErrorsReducer = <T extends FormValues>(state: FieldErrorMap<T>, action: FieldErrorsActions<T>): FieldErrorMap<T> => {
   switch (action.type) {
     case Action.ADD:
       const otherErrors = state[action.id] || {}
@@ -11,7 +11,7 @@ const fieldErrorsReducer = (state: FieldErrorMap, action: FieldErrorsActions): F
       const { [action.key]: removed, ...remainingErrors } = state[action.id] || {}
       return { ...state, [action.id]: remainingErrors }
     case Action.RESET:
-      return {}
+      return {} as FieldErrorMap<T>
   }
 }
 

@@ -2,14 +2,14 @@ import React from 'react'
 
 import FormContext from './FormContext'
 
-import { Action, FormContext as FormContextType, FormError, FormValues } from '../types'
+import { Action, ContextShape, FormContext as FormContextType, FormError, FormValues } from '../types'
 
 const useFormContext = <T extends FormValues>(): FormContextType<T> => {
   const {
     dispatchFieldError, dispatchFormError, dispatchValue, values, ...ctx
-  } = React.useContext(FormContext)
+  } = React.useContext<ContextShape<T>>(FormContext as React.Context<ContextShape<T>>)
 
-  const addFieldError = (id: string, key: string, value: FormError) => dispatchFieldError({
+  const addFieldError = (id: keyof T, key: string, value: FormError) => dispatchFieldError({
     type: Action.ADD, id, key, value
   })
 
@@ -23,7 +23,7 @@ const useFormContext = <T extends FormValues>(): FormContextType<T> => {
 
   const clearFormErrors = () => dispatchFormError({ type: Action.CLEAR })
 
-  const removeFieldError = (id: string, key: string) => dispatchFieldError({
+  const removeFieldError = (id: keyof T, key: string) => dispatchFieldError({
     type: Action.REMOVE, id, key
   })
 
@@ -37,7 +37,7 @@ const useFormContext = <T extends FormValues>(): FormContextType<T> => {
 
   return {
     ...ctx,
-    values: values as T,
+    values,
     addFieldError,
     addFormError,
     clearFieldErrors,
